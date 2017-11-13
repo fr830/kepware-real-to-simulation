@@ -17,6 +17,8 @@ class Device(object):
     def parse_tag_groups(self):
         """Gets an array of TagGroup objects in the Kepware device"""
         tag_groups = []
+        if "tag_groups" not in self._device_dict:
+            return tag_groups
         for tag_group in self._device_dict["tag_groups"]:
             tag_groups.append(TagGroup(tag_group))
         return tag_groups
@@ -37,6 +39,8 @@ class Device(object):
 
     def update(self):
         """Updates the dictionary of the device"""
+        if "tag_groups" not in self._device_dict:
+            return
         for group in self.tag_groups:
             group.update()
         for i in range(len(self._device_dict["tag_groups"])):
