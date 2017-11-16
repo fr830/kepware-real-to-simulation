@@ -16,6 +16,9 @@ def process_devices(devices, normal_register, string_register):
                 elif tag.data_type == 1: # boolean
                     tag.set_address(normal_register.next_bit_address())
                     normal_register.move_to_next_bit_address()
+                elif tag.data_type == 24: # integer[]
+                    tag.set_address(normal_register.get_array(20))
+                    normal_register.move_to_next_address(20)
                 else: # integer
                     tag.set_address(normal_register.next_address())
                     normal_register.move_to_next_address(4)

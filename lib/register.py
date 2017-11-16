@@ -81,6 +81,10 @@ class Register(object):
         """Moves to next available bit address position"""
         self._current_bit_address = self.next_bit_address()
 
+    def get_array(self, array_size):
+        """Gets an array address"""
+        return "{0}[{1}]".format(self._current_address, array_size)
+
     def next_bit_address(self):
         """Gets the next boolean address"""
         if self._current_bit_address == "":
