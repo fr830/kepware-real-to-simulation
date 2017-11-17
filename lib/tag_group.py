@@ -5,6 +5,7 @@ class TagGroup(object):
     def __init__(self, tag_group_dict):
         self._tag_group_dict = tag_group_dict
         self._tags = self.parse_tags()
+        self._is_ignored = False
 
     def parse_tags(self):
         """Parses tags in tag group"""
@@ -24,6 +25,8 @@ class TagGroup(object):
     @property
     def name(self):
         """Gets the name of the tag group"""
+        if self._is_ignored:
+            return ''
         return self._tag_group_dict["common.ALLTYPES_NAME"]
 
     def as_dict(self):
@@ -32,7 +35,7 @@ class TagGroup(object):
 
     def update(self):
         """Updates the dictionary of the tag group"""
-        if "tags" not in self._tag_group_dict:
+        if self._is_ignored or "tags" not in self._tag_group_dict:
             return
         for i in range(len(self._tag_group_dict["tags"])):
             tag_dict = self._tag_group_dict["tags"][i]

@@ -5,7 +5,8 @@ from lib.channel import Channel
 
 class Project(object):
     """Represents a Kepware project"""
-    def __init__(self, kepware_dict, is_sixteen_bit):
+    def __init__(self, kepware_dict, is_sixteen_bit, ignore_list):
+        self._ignore_list = ignore_list
         self._kepware_dict = kepware_dict
         self._project_dict = kepware_dict["Project"]
         self._is_sixteen_bit = is_sixteen_bit
@@ -20,7 +21,7 @@ class Project(object):
         """Creates an array of Channel objects from the project"""
         channels = []
         for channel in self._project_dict["channels"]:
-            channels.append(Channel(channel, self._is_sixteen_bit))
+            channels.append(Channel(channel, self._is_sixteen_bit, self._ignore_list))
         return channels
 
     def as_json(self):

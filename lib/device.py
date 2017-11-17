@@ -3,7 +3,8 @@ from lib.tag_group import TagGroup
 
 class Device(object):
     """Represents a Kepware device"""
-    def __init__(self, device_dict, is_sixteen_bit):
+    def __init__(self, device_dict, is_sixteen_bit, ignore_list):
+        self._ignore_list = ignore_list
         self._device_dict = device_dict
         self._tag_groups = self.parse_tag_groups()
         self._is_sixteen_bit = is_sixteen_bit
@@ -21,10 +22,17 @@ class Device(object):
     def parse_tag_groups(self):
         """Gets an array of TagGroup objects in the Kepware device"""
         tag_groups = []
-        if "tag_groups" not in self._device_dict:
+        if 'tag_groups' not in self._device_dict:
             return tag_groups
-        for tag_group in self._device_dict["tag_groups"]:
+        to_remove = []
+        for tag_group in self._device_dict['tag_groups']:
+            if tag_group['common.ALLTYPES_NAME'] in self._ignore_list:
+                to_remove.append(tag_group)
+                continue
             tag_groups.append(TagGroup(tag_group))
+        for removable in to_remove:
+            self._device_dict['tag_groups'].remove(removable)
+
         return tag_groups
 
     @property
