@@ -1,37 +1,76 @@
 """Turns live Kepware JSON file into simulation server"""
+import getopt
 import json
+import sys
 from collections import OrderedDict
-from lib.regular_register import RegularRegister
-from lib.string_register import StringRegister
+from lib.simulator_device import SimulatorDevice
 from lib.project import Project
 
-def process_devices(devices, normal_register, string_register):
+DOC = """
+Kepware JSON file to Simulation Server JSON converter.
+
+Prints conversion to std-out.
+
+Usage:
+
+    python kepware_real_to_simulation.py [-h]
+
+    python kepware_real_to_simulation.py [-s (8 || 16)] <file-name>
+
+Example: 
+
+    python kepware_real_to_simulation.py -s 16 tags.json > tags-sim.json
+
+Options:
+
+    -h, --help: prints this documentation
+    
+    -s, --size (optional): Specifies the device register size.
+        "8" or "16" for 8 bit or 16 bit. Default is 8 bit.
+"""
+
+def process_devices(devices):
     """Process all tags in all devices"""
     for device in devices:
+        simulator = SimulatorDevice(device.is_sixteen_bit)
         for tag_group in device.tag_groups:
             for tag in tag_group.tags:
-                if tag.data_type == 0: # string
-                    tag.set_address(string_register.current_address)
-                    string_register.move_to_next_address(2)
-                elif tag.data_type == 1: # boolean
-                    tag.set_address(normal_register.next_bit_address())
-                    normal_register.move_to_next_bit_address()
-                elif tag.data_type == 24: # integer[]
-                    tag.set_address(normal_register.get_array(20))
-                    normal_register.move_to_next_address(20)
-                else: # integer
-                    tag.set_address(normal_register.next_address())
-                    normal_register.move_to_next_address(4)
+                simulator.process_tag(tag)
 
 def main():
     """MAIN"""
-    with open("tags.json") as f_tags:
-        text = f_tags.read().encode('utf_8')
+    opts, args = getopt.getopt(
+        sys.argv[1: ],
+        'hs:',
+        [
+            'help',
+            'size'])
+    is_sixteen_bit = False
+
+    for opt, arg in opts:
+        if opt in ('-h', '--help'):
+            print DOC
+            sys.exit(0)
+
+        if opt in ('-s', '--size'):
+            is_sixteen_bit = arg == '16'
+
+    if len(args) < 1:
+        raise Exception("""You must at least pass in the filename of the Kepware JSON file.
+Use -h for help""")
+
+    if len(args) > 1:
+        raise Exception('Too many arguments passed in. Use -h for help.')
+
+    with open(args[0]) as f_tags:
+        text = f_tags.read()
+        # remove first three bytes and encode ascii
+        text = text[3:].encode('utf_8')
         kepware_dict = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(text)
-        project = Project(kepware_dict)
+        project = Project(kepware_dict, is_sixteen_bit)
         for channel in project.channels:
             channel.set_driver_simulated()
-            process_devices(channel.devices, RegularRegister(False), StringRegister(False))
+            process_devices(channel.devices)
         project.update()
         print project.as_json()
 

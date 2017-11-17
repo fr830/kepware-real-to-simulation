@@ -1,5 +1,8 @@
 """Kepware tag module"""
 
+import re
+from lib.tag_type_siemens import SiemensTcpIpTagType
+
 class Tag(object):
     """Represents a kepware tag"""
     def __init__(self, tag_dict):
@@ -14,7 +17,7 @@ class Tag(object):
     @property
     def data_type(self):
         """Gets tag data type"""
-        return self._tag_dict["servermain.TAG_DATA_TYPE"]
+        return SiemensTcpIpTagType(int(self._tag_dict["servermain.TAG_DATA_TYPE"]))
 
     def get_address(self):
         """Gets tag address"""
@@ -31,3 +34,23 @@ class Tag(object):
     def as_dict(self):
         """Returns dictionary representation of the tag"""
         return self._tag_dict
+
+    def get_array_size(self):
+        """Attempts to parse array size out of the address"""
+        match = re.search(r"(?<=\[)\d+(?=\])", self.get_address())
+        return int(match.group(0))
+
+    def get_string_length(self):
+        """Attempts to parse array size out of the address"""
+        try:
+            return self.get_array_size()
+        except:
+            match = re.search(r"(?<=\.)\d+", self.get_address())
+            try:
+                return int(match.group(0))
+            except Exception as ex:
+                raise Exception('Could not get string size of {0} address {1}'
+                                .format(
+                                    self.name,
+                                    self.get_address()),
+                                ex)

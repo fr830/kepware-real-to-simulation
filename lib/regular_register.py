@@ -1,7 +1,7 @@
 """Normal register module"""
-import register
+from lib.register import Register
 
-class RegularRegister(register.Register):
+class RegularRegister(Register):
     """Represents a normal register
     Between K0000 - K9999.
     Each address is a byte on an 8-bit device and a word on a 16-bit
@@ -13,4 +13,4 @@ class RegularRegister(register.Register):
     Double, Date, Boolean"""
 
     def __init__(self, is_16bit):
-        register.Register.__init__(self, is_16bit, "K0000")
+        Register.__init__(self, is_16bit, "K0000")

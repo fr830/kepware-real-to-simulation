@@ -3,9 +3,10 @@ from lib.device import Device
 
 class Channel(object):
     """Represents a Kepware channel"""
-    def __init__(self, channel_dict):
+    def __init__(self, channel_dict, is_sixteen_bit):
         self._channel_dict = channel_dict
         self.set_driver_simulated()
+        self._is_sixteen_bit = is_sixteen_bit
         self._devices = self.parse_devices()
 
     def each_device(self, work):
@@ -18,7 +19,7 @@ class Channel(object):
         """Creates an array of Device objects from the channel"""
         devices = []
         for device in self._channel_dict["devices"]:
-            devices.append(Device(device))
+            devices.append(Device(device, self._is_sixteen_bit))
         return devices
 
     def set_driver_simulated(self):

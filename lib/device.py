@@ -3,15 +3,19 @@ from lib.tag_group import TagGroup
 
 class Device(object):
     """Represents a Kepware device"""
-    def __init__(self, device_dict):
+    def __init__(self, device_dict, is_sixteen_bit):
         self._device_dict = device_dict
         self._tag_groups = self.parse_tag_groups()
+        self._is_sixteen_bit = is_sixteen_bit
         self.set_driver_simulated()
 
     def set_driver_simulated(self):
         """Sets the device driver type to simulated"""
         self._device_dict["servermain.MULTIPLE_TYPES_DEVICE_DRIVER"] = "Simulator"
-        self._device_dict["servermain.DEVICE_MODEL"] = 1
+        if self._is_sixteen_bit:
+            self._device_dict["servermain.DEVICE_MODEL"] = 0
+        else:
+            self._device_dict["servermain.DEVICE_MODEL"] = 1
         self._device_dict["servermain.DEVICE_ID_OCTAL"] = 1
 
     def parse_tag_groups(self):
@@ -27,6 +31,11 @@ class Device(object):
     def tag_groups(self):
         """Gets the tag groups of the device"""
         return self._tag_groups
+
+    @property
+    def is_sixteen_bit(self):
+        """Returns true if is sixteen bit device"""
+        return self._is_sixteen_bit
 
     @property
     def name(self):

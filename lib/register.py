@@ -101,7 +101,7 @@ class Register(object):
                 register_half = self._current_bit_address.split(".")[0]
                 return "{0}.{1}".format(
                     register_half,
-                    pad_zeroes(bool_half + 1, 2))
+                    pad_zeroes(str(bool_half + 1), 2))
             self.move_to_next_address(self._size_of_current_register_address)
             return "{0}.{1}".format(
                 self.next_address(),
