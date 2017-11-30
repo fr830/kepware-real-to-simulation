@@ -55,7 +55,7 @@ class SimulatorDevice(object):
 
     def process_boolean(self, tag):
         """Process Boolean type tags"""
-        tag.set_address(self.normal_register.next_bit_address())
+        tag.set_address(self.normal_register.current_bit_address)
         self.normal_register.move_to_next_bit_address()
 
     def process_boolean_array(self, tag):
@@ -71,12 +71,12 @@ class SimulatorDevice(object):
 
     def process_byte(self, tag):
         """Process byte type tags"""
-        tag.set_address(self.normal_register.next_address())
+        tag.set_address(self.normal_register.current_address)
         # each address needs 1 byte
         self.normal_register.move_to_next_address(1)
 
     def _process_32_bit_type(self, tag):
-        tag.set_address(self.normal_register.next_address())
+        tag.set_address(self.normal_register.current_address)
         if self.is_sixteen_bit:
             # each word address needs 4 bytes = 2 addresses
             self.normal_register.move_to_next_address(2)
@@ -85,7 +85,7 @@ class SimulatorDevice(object):
         self.normal_register.move_to_next_address(4)
 
     def _process_16_bit_type(self, tag):
-        tag.set_address(self.normal_register.next_address())
+        tag.set_address(self.normal_register.current_address)
         if self.is_sixteen_bit:
             # each short address needs 2 bytes = 1 address
             self.normal_register.move_to_next_address(1)
